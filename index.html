@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bac S2 Maths – Entraînement</title>
+<meta name="theme-color" content="#1b3a6b">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{--bg:#f5f7fb;--card:#fff;--ink:#16213a;--mut:#5b6785;--pri:#1b3a6b;--acc:#e08a00;--ok:#1a7f4b;--ko:#b3261e;--line:#dbe1ee}
+@media (prefers-color-scheme:dark){:root{--bg:#0f1626;--card:#18223a;--ink:#e8edf8;--mut:#9aa8c7;--pri:#8fb3ff;--acc:#ffb84d;--ok:#4cc38a;--ko:#ff8a80;--line:#2b3858}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{background:var(--pri);color:#fff;padding:18px 16px}
+@media (prefers-color-scheme:dark){header{background:#1b2a4a;color:#e8edf8}}
+header h1{margin:0;font-size:1.25rem}
+header p{margin:4px 0 0;font-size:.9rem;opacity:.9}
+main{max-width:760px;margin:0 auto;padding:16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+.ch{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;text-align:left;color:inherit;font:inherit;cursor:pointer}
+.ch:hover,.ch:focus-visible{border-color:var(--acc);outline:none}
+.ch b{display:block;font-size:1.02rem}
+.ch small{color:var(--mut)}
+.bar{height:6px;background:var(--line);border-radius:4px;margin-top:8px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--ok)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-top:12px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:8px;color:var(--mut);font-size:.9rem}
+.q{font-size:1.1rem;margin:10px 0}
+.ans{display:flex;gap:8px;flex-wrap:wrap}
+input{flex:1;min-width:140px;font:inherit;padding:11px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink)}
+button.b{font:inherit;padding:11px 16px;border-radius:10px;border:0;background:var(--pri);color:#fff;cursor:pointer}
+@media (prefers-color-scheme:dark){button.b{background:var(--acc);color:#111}}
+button.g{background:transparent;color:var(--pri);border:1px solid var(--line)}
+.res{margin-top:12px;padding:10px 12px;border-radius:10px;font-weight:600}
+.res.ok{background:rgba(26,127,75,.12);color:var(--ok)}
+.res.ko{background:rgba(179,38,30,.12);color:var(--ko)}
+.sol{margin-top:10px;padding:10px 12px;border-left:4px solid var(--acc);background:var(--bg);border-radius:6px}
+.sol p{margin:.3em 0}
+.hint{color:var(--mut);font-size:.88rem}
+.back{margin:0 0 4px;background:none;border:0;color:var(--pri);font:inherit;cursor:pointer;padding:6px 0}
+footer{max-width:760px;margin:8px auto 28px;padding:0 16px;color:var(--mut);font-size:.82rem}
+.big{font-size:2rem;font-weight:700;margin:6px 0}
+</style>
+</head>
+<body>
+<header><h1>Bac S2 – Mathématiques</h1><p>Entraînement par chapitre · tentez d'abord, la correction vient ensuite</p></header>
+<main id="app"></main>
+<footer>Questions originales, inspirées des types d'exercices des épreuves du Bac sénégalais (Office du Baccalauréat, UCAD). Elles ne reprennent pas les énoncés officiels. Ce programme ne remplace pas les sujets complets : travaillez aussi les annales.</footer>
+
+<script id="engine">
+/* ===== Moteur de questions ===== */
+var ENGINE=(function(){
+var CH=[
+ {id:"fonc",nom:"Étude de fonction",ico:"📈"},
+ {id:"comp",nom:"Nombres complexes",ico:"ℂ"},
+ {id:"prob",nom:"Probabilités",ico:"🎲"},
+ {id:"integ",nom:"Intégrales et aires",ico:"∫"},
+ {id:"suites",nom:"Suites numériques",ico:"🔢"},
+ {id:"diff",nom:"Équations différentielles",ico:"y′"},
+ {id:"stat",nom:"Statistiques",ico:"📊"},
+ {id:"lim",nom:"Limites et primitives",ico:"→∞"}
+];
+function mk(seed){var a=seed>>>0;return function(){a=(a+0x6D2B79F5)>>>0;var t=a;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return((t^(t>>>14))>>>0)/4294967296}}
+function ri(r,a,b){return a+Math.floor(r()*(b-a+1))}
+function pick(r,arr){return arr[Math.floor(r()*arr.length)]}
+function fr(x,d){if(Math.abs(x-Math.round(x))<1e-12)return String(Math.round(x));return x.toFixed(d==null?2:d).replace(".",",")}
+function rd(x,d){var m=Math.pow(10,d);return Math.round(x*m)/m}
+function C(n,k){var r=1;for(var i=1;i<=k;i++)r=r*(n-k+i)/i;return Math.round(r)}
+var G={}; /* id -> {ch, gen(r)} */
+function add(ch,id,gen){G[id]={ch:ch,gen:gen}}
+function cx(a){return a===1?"x":a+"x"}
+function cy(a){return a===1?"y":a+"y"}
+function fq(n,d){return d===1?String(n):n+"/"+d}
+function sg(v){return v<0?" − "+(-v):" + "+v}
+var I3="Donner la valeur arrondie à 10⁻³ près (ou une fraction).",I2="Donner la valeur arrondie au centième (ou une fraction).";
+
+/* --- Étude de fonction --- */
+add("fonc","f_crit",function(r){var a=ri(r,2,6);return{p:{a:a},text:"Soit f(x) = (x + "+a+")eˣ sur ℝ. En quelle valeur de x la dérivée f′ s'annule-t-elle ?",ans:-(a+1),tol:1e-9,
+ sol:["f′(x) = eˣ + (x + "+a+")eˣ = (x + "+(a+1)+")eˣ.","Comme eˣ > 0, f′(x) = 0 ⇔ x + "+(a+1)+" = 0.","Donc x = "+(-(a+1))+"."]}});
+add("fonc","f_lim",function(r){var a=ri(r,2,9),b=ri(r,1,9),c=ri(r,2,5),d=ri(r,1,9);return{p:{a:a,b:b,c:c,d:d},text:"Calculer lim<sub>x→+∞</sub> ("+a+"x² + "+cx(b)+") / ("+c+"x² + "+d+"). "+I2,ans:a/c,tol:0.006,
+ sol:["En +∞, une fraction rationnelle a la même limite que le quotient de ses termes de plus haut degré.","Ici : "+a+"x² / "+c+"x² = "+a+"/"+c+".","Donc la limite vaut "+a+"/"+c+" ≈ "+fr(a/c,3)+"."]}});
+add("fonc","f_min",function(r){var m=ri(r,2,6);return{p:{m:m},text:"Soit f(x) = x² − "+(2*m*m)+" ln x sur ]0 ; +∞[. En quelle valeur de x la fonction f admet-elle son minimum ?",ans:m,tol:1e-9,
+ sol:["f′(x) = 2x − "+(2*m*m)+"/x = 2(x² − "+(m*m)+")/x.","Sur ]0 ; +∞[, f′(x) est du signe de x² − "+(m*m)+" : négative avant "+m+", positive après.","Le minimum est donc atteint en x = "+m+"."]}});
+add("fonc","f_slope",function(r){var a=ri(r,1,4),b=ri(r,1,5),c=ri(r,1,4);return{p:{a:a,b:b,c:c},text:"Soit f(x) = ln("+cx(a)+" + "+b+"). Calculer f′("+c+"). "+I3,ans:a/(a*c+b),tol:0.0006,
+ sol:["(ln u)′ = u′/u, avec u = "+cx(a)+" + "+b+" et u′ = "+a+".","f′(x) = "+a+"/("+cx(a)+" + "+b+").","f′("+c+") = "+a+"/"+(a*c+b)+" ≈ "+fr(a/(a*c+b),3)+"."]}});
+add("fonc","f_tan",function(r){var b=ri(r,1,5),c=ri(r,1,9),x=ri(r,1,4);return{p:{b:b,c:c,x0:x},text:"Soit f(x) = x² + "+cx(b)+" + "+c+". La tangente à la courbe au point d'abscisse "+x+" coupe l'axe des ordonnées en un point. Quelle est son ordonnée ?",ans:c-x*x,tol:1e-9,
+ sol:["f′(x) = 2x + "+b+", donc f′("+x+") = "+(2*x+b)+" et f("+x+") = "+(x*x+b*x+c)+".","Tangente : y = "+(2*x+b)+"(x − "+x+") + "+(x*x+b*x+c)+".","En x = 0 : y = "+(x*x+b*x+c)+" − "+(x*(2*x+b))+" = "+(c-x*x)+"."]}});
+
+/* --- Nombres complexes --- */
+add("comp","c_mod",function(r){var t=pick(r,[[3,4,5],[5,12,13],[8,15,17],[7,24,25]]),k=ri(r,1,3),a=t[0]*k*pick(r,[1,-1]),b=t[1]*k*pick(r,[1,-1]);
+ var s=a+(b<0?" − "+(-b):" + "+b)+"i";return{p:{a:a,b:b},text:"Calculer le module de z = "+s+".",ans:t[2]*k,tol:1e-9,
+ sol:["|z| = √(a² + b²) avec a = "+a+" et b = "+b+".","|z| = √("+(a*a)+" + "+(b*b)+") = √"+(a*a+b*b)+".","Donc |z| = "+(t[2]*k)+"."]}});
+add("comp","c_prod",function(r){var a=ri(r,1,6),b=ri(r,1,6),c=ri(r,1,6),d=ri(r,1,6),w=pick(r,["Re","Im"]);
+ var v=w==="Re"?a*c-b*d:a*d+b*c;return{p:{a:a,b:b,c:c,d:d,w:w},text:"On pose z = ("+a+" + "+b+"i)("+c+" + "+d+"i). Donner la "+(w==="Re"?"partie réelle":"partie imaginaire")+" de z.",ans:v,tol:1e-9,
+ sol:["(a + bi)(c + di) = (ac − bd) + (ad + bc)i.","ac − bd = "+(a*c)+" − "+(b*d)+" = "+(a*c-b*d)+" ; ad + bc = "+(a*d)+" + "+(b*c)+" = "+(a*d+b*c)+".","La "+(w==="Re"?"partie réelle":"partie imaginaire")+" vaut "+v+"."]}});
+add("comp","c_pow",function(r){var k=ri(r,1,3);return{p:{k:k},text:"Calculer (1 + i)<sup>"+(4*k)+"</sup>. Donner sa partie réelle (le nombre obtenu est réel).",ans:Math.pow(-4,k),tol:1e-9,
+ sol:["(1 + i)² = 1 + 2i + i² = 2i.","(1 + i)⁴ = (2i)² = −4.","(1 + i)<sup>"+(4*k)+"</sup> = (−4)<sup>"+k+"</sup> = "+Math.pow(-4,k)+"."]}});
+add("comp","c_quot",function(r){var a=ri(r,1,9),b=ri(r,1,9);return{p:{a:a,b:b},text:"Donner la partie imaginaire de ("+a+" + "+b+"i)/(1 + i).",ans:(b-a)/2,tol:1e-9,
+ sol:["On multiplie par le conjugué : ("+a+" + "+b+"i)(1 − i)/((1 + i)(1 − i)) = ("+a+" + "+b+"i)(1 − i)/2.","("+a+" + "+b+"i)(1 − i) = "+(a+b)+sg(b-a)+"i.","Donc la partie imaginaire est ("+(b-a)+")/2 = "+fr((b-a)/2,1)+"."]}});
+add("comp","c_eq",function(r){var t=pick(r,[[3,4,5],[5,12,13],[8,15,17]]),a=t[0],b=t[1];return{p:{a:a,b:b},text:"Résoudre z² − "+(2*a)+"z + "+(a*a+b*b)+" = 0 dans ℂ. Les deux solutions ont le même module : quel est-il ?",ans:t[2],tol:1e-9,
+ sol:["Δ = "+(4*a*a)+" − "+(4*(a*a+b*b))+" = "+(-4*b*b)+" = ("+(2*b)+"i)².","Les solutions sont z = "+a+" ± "+b+"i.","Leur module est √("+(a*a)+" + "+(b*b)+") = "+t[2]+"."]}});
+
+/* --- Probabilités --- */
+add("prob","p_bin",function(r){var n=ri(r,4,6),k=ri(r,0,n),pp=pick(r,[[1,2],[1,4],[1,3]]),p=pp[0]/pp[1];var v=C(n,k)*Math.pow(p,k)*Math.pow(1-p,n-k);
+ return{p:{n:n,k:k,pn:pp[0],pd:pp[1]},text:"Une variable aléatoire X suit la loi binomiale B("+n+" ; "+pp[0]+"/"+pp[1]+"). Calculer P(X = "+k+"). "+I3,ans:v,tol:0.0006,
+ sol:["P(X = k) = C(n,k) pᵏ (1 − p)ⁿ⁻ᵏ.","C("+n+","+k+") = "+C(n,k)+", p = "+pp[0]+"/"+pp[1]+".","P(X = "+k+") = "+C(n,k)+" × ("+pp[0]+"/"+pp[1]+")<sup>"+k+"</sup> × ("+(pp[1]-pp[0])+"/"+pp[1]+")<sup>"+(n-k)+"</sup> ≈ "+fr(v,4)+"."]}});
+add("prob","p_urne",function(r){var R=ri(r,3,6),B=ri(r,2,5),N=R+B,v=R*(R-1)/(N*(N-1));return{p:{R:R,B:B},text:"Une urne contient "+R+" boules rouges et "+B+" boules bleues. On tire successivement et sans remise deux boules. Quelle est la probabilité d'obtenir deux boules rouges ? "+I3,ans:v,tol:0.0006,
+ sol:["Total : "+N+" boules.","P = ("+R+"/"+N+") × ("+(R-1)+"/"+(N-1)+").","P = "+(R*(R-1))+"/"+(N*(N-1))+" ≈ "+fr(v,4)+"."]}});
+add("prob","p_esp",function(r){var n=ri(r,10,40),p=pick(r,[0.2,0.25,0.3,0.4,0.5]),w=pick(r,["E","V"]);var v=w==="E"?n*p:n*p*(1-p);
+ return{p:{n:n,p:p,w:w},text:"X suit la loi binomiale B("+n+" ; "+fr(p,2)+"). Calculer "+(w==="E"?"l'espérance E(X)":"la variance V(X)")+". "+I3,ans:v,tol:0.0006,
+ sol:[w==="E"?"E(X) = np = "+n+" × "+fr(p,2)+" = "+fr(v,4)+".":"V(X) = np(1 − p) = "+n+" × "+fr(p,2)+" × "+fr(1-p,2)+" = "+fr(v,4)+"."]}});
+add("prob","p_comb",function(r){var n=ri(r,6,10),k=ri(r,2,4);return{p:{n:n,k:k},text:"Dans une classe de "+n+" élèves, on choisit un comité de "+k+" élèves (sans ordre). Combien de comités différents peut-on former ?",ans:C(n,k),tol:1e-9,
+ sol:["Le nombre de parties à "+k+" éléments d'un ensemble à "+n+" éléments est C("+n+","+k+").","C("+n+","+k+") = "+C(n,k)+"."]}});
+add("prob","p_cond",function(r){var pa=pick(r,[0.3,0.4,0.5,0.6,0.7]),pb=pick(r,[0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9]),v=rd(pa*pb,4);return{p:{pa:pa,pb:pb},text:"On sait que P(A) = "+fr(pa,1)+" et P<sub>A</sub>(B) = "+fr(pb,1)+". Calculer P(A ∩ B).",ans:v,tol:0.0006,
+ sol:["P(A ∩ B) = P(A) × P<sub>A</sub>(B).","= "+fr(pa,1)+" × "+fr(pb,1)+" = "+fr(v,2)+"."]}});
+add("prob","p_total",function(r){var pa=pick(r,[0.2,0.3,0.4,0.6,0.7]),p1=pick(r,[0.3,0.5,0.6,0.8,0.9]),p2=pick(r,[0.1,0.2,0.3,0.4]),v=rd(pa*p1+(1-pa)*p2,4);return{p:{pa:pa,p1:p1,p2:p2},text:"P(A) = "+fr(pa,1)+", P<sub>A</sub>(B) = "+fr(p1,1)+" et P<sub>Ā</sub>(B) = "+fr(p2,1)+". Calculer P(B) avec la formule des probabilités totales.",ans:v,tol:0.0006,
+ sol:["P(B) = P(A)·P<sub>A</sub>(B) + P(Ā)·P<sub>Ā</sub>(B).","= "+fr(pa,1)+" × "+fr(p1,1)+" + "+fr(1-pa,1)+" × "+fr(p2,1)+" = "+fr(v,3)+"."]}});
+
+/* --- Intégrales --- */
+add("integ","i_poly",function(r){var a=pick(r,[3,6,9]),b=pick(r,[2,4,6]);return{p:{a:a,b:b},text:"Calculer ∫<sub>0</sub><sup>1</sup> ("+a+"x² + "+b+"x) dx.",ans:a/3+b/2,tol:1e-9,
+ sol:["Une primitive est F(x) = "+(a/3)+"x³ + "+(b/2)+"x².","F(1) − F(0) = "+(a/3)+" + "+(b/2)+" = "+(a/3+b/2)+"."]}});
+add("integ","i_exp",function(r){var a=ri(r,2,9),b=ri(r,1,4);return{p:{a:a,b:b},text:"Calculer ∫<sub>0</sub><sup>ln "+a+"</sup> "+b+"eˣ dx.",ans:b*(a-1),tol:1e-9,
+ sol:["Une primitive de "+b+"eˣ est "+b+"eˣ.","["+b+"eˣ] de 0 à ln "+a+" = "+b+"·"+a+" − "+b+"·1.","= "+b*(a-1)+"."]}});
+add("integ","i_inv",function(r){var a=ri(r,2,6),k=ri(r,2,5);return{p:{a:a,k:k},text:"Calculer ∫<sub>1</sub><sup>e<sup>"+k+"</sup></sup> "+a+"/x dx.",ans:a*k,tol:1e-9,
+ sol:["Une primitive de "+a+"/x est "+a+" ln x.","["+a+" ln x] de 1 à e<sup>"+k+"</sup> = "+a+"·"+k+" − "+a+"·0.","= "+(a*k)+"."]}});
+add("integ","i_sin",function(r){var a=ri(r,2,9),w=pick(r,["s","c"]);return{p:{a:a,w:w},text:w==="s"?"Calculer ∫<sub>0</sub><sup>π</sup> "+a+" sin x dx.":"Calculer ∫<sub>0</sub><sup>π/2</sup> "+a+" cos x dx.",ans:w==="s"?2*a:a,tol:1e-9,
+ sol:[w==="s"?"Primitive : −"+a+" cos x. Valeur : −"+a+"cos π + "+a+"cos 0 = "+a+" + "+a+" = "+(2*a)+".":"Primitive : "+a+" sin x. Valeur : "+a+"sin(π/2) − "+a+"sin 0 = "+a+"."]}});
+add("integ","i_ipp",function(r){var a=ri(r,2,4),v=1+a*(Math.E-1);return{p:{a:a},text:"Calculer ∫<sub>0</sub><sup>1</sup> (x + "+a+")eˣ dx. "+I3,ans:v,tol:0.0006,
+ sol:["Intégration par parties pour ∫ x eˣ dx : u = x, v′ = eˣ ; ∫<sub>0</sub><sup>1</sup> x eˣ dx = [x eˣ − eˣ] = (e − e) − (0 − 1) = 1.","Et ∫<sub>0</sub><sup>1</sup> "+a+"eˣ dx = "+a+"(e − 1).","Total : 1 + "+a+"(e − 1) ≈ "+fr(v,4)+"."]}});
+add("integ","i_aire",function(r){var a=ri(r,2,6),v=a*a*a/6;return{p:{a:a},text:"Calculer l'aire (en unités d'aire) du domaine délimité par la parabole y = x² et la droite y = "+a+"x. "+I2,ans:v,tol:0.006,
+ sol:["Les courbes se coupent en x = 0 et x = "+a+", la droite est au-dessus.","Aire = ∫<sub>0</sub><sup>"+a+"</sup> ("+a+"x − x²) dx = ["+a+"x²/2 − x³/3] = "+a+"³/2 − "+a+"³/3 = "+a+"³/6.","Aire = "+(a*a*a)+"/6 ≈ "+fr(v,3)+" u.a."]}});
+
+/* --- Suites --- */
+add("suites","u_arith",function(r){var u=ri(r,-3,8),d=ri(r,2,7),k=ri(r,8,20);return{p:{u:u,d:d,k:k},text:"(uₙ) est arithmétique de premier terme u₀ = "+u+" et de raison "+d+". Calculer u<sub>"+k+"</sub>.",ans:u+d*k,tol:1e-9,
+ sol:["uₙ = u₀ + n·r.","u<sub>"+k+"</sub> = "+u+" + "+k+" × "+d+" = "+(u+d*k)+"."]}});
+add("suites","u_geo",function(r){var u=ri(r,1,3),q=ri(r,2,3),k=ri(r,4,7);return{p:{u:u,q:q,k:k},text:"(uₙ) est géométrique de premier terme u₀ = "+u+" et de raison "+q+". Calculer u<sub>"+k+"</sub>.",ans:u*Math.pow(q,k),tol:1e-9,
+ sol:["uₙ = u₀ × qⁿ.","u<sub>"+k+"</sub> = "+u+" × "+q+"<sup>"+k+"</sup> = "+(u*Math.pow(q,k))+"."]}});
+add("suites","u_sumgeo",function(r){var u=ri(r,1,3),q=ri(r,2,3),n=ri(r,3,6);var v=u*(Math.pow(q,n+1)-1)/(q-1);return{p:{u:u,q:q,n:n},text:"(uₙ) est géométrique de premier terme u₀ = "+u+" et de raison "+q+". Calculer S = u₀ + u₁ + … + u<sub>"+n+"</sub>.",ans:v,tol:1e-9,
+ sol:["S = u₀ (qⁿ⁺¹ − 1)/(q − 1).","S = "+u+" × ("+q+"<sup>"+(n+1)+"</sup> − 1)"+(q===2?"":"/"+(q-1))+" = "+u+" × "+(Math.pow(q,n+1)-1)+(q===2?"":"/"+(q-1))+" = "+v+"."]}});
+add("suites","u_lim",function(r){var pp=pick(r,[[1,2],[1,3],[1,4],[2,3],[3,4]]),b=ri(r,1,6),a=pp[0]/pp[1],v=b/(1-a);return{p:{an:pp[0],ad:pp[1],b:b},text:"(uₙ) vérifie u<sub>n+1</sub> = ("+pp[0]+"/"+pp[1]+")uₙ + "+b+" et converge. Quelle est sa limite ℓ ? "+I3,ans:v,tol:0.0006,
+ sol:["En passant à la limite : ℓ = ("+pp[0]+"/"+pp[1]+")ℓ + "+b+".","ℓ(1 − "+pp[0]+"/"+pp[1]+") = "+b+", donc ℓ = "+b+" ÷ ("+(pp[1]-pp[0])+"/"+pp[1]+") = "+fr(v,3)+"."]}});
+add("suites","u_serie",function(r){var pp=pick(r,[[1,2],[1,3],[1,4]]),u=ri(r,2,9),q=pp[0]/pp[1],v=u/(1-q);return{p:{u:u,qn:pp[0],qd:pp[1]},text:"Calculer la somme de la série u + u·q + u·q² + … avec u = "+u+" et q = "+pp[0]+"/"+pp[1]+". "+I3,ans:v,tol:0.0006,
+ sol:["Comme |q| < 1, la somme vaut u/(1 − q).","= "+u+"/(1 − "+pp[0]+"/"+pp[1]+") = "+u+" × "+fq(pp[1],pp[1]-pp[0])+" = "+fr(v,3)+"."]}});
+
+/* --- Équations différentielles --- */
+add("diff","d_exp",function(r){var a=ri(r,1,3),c=ri(r,1,5);return{p:{a:a,c:c},text:"Soit y la solution de y′ = "+cy(a)+" telle que y(0) = "+c+". Calculer y(ln 2).",ans:c*Math.pow(2,a),tol:1e-9,
+ sol:["Les solutions de y′ = ay sont y(x) = Ke<sup>ax</sup> ; y(0) = "+c+" donne K = "+c+".","y(ln 2) = "+c+"·e<sup>"+(a===1?"":a+" ")+"ln 2</sup> = "+c+" × 2"+(a===1?"":"<sup>"+a+"</sup>")+" = "+(c*Math.pow(2,a))+"."]}});
+add("diff","d_osc",function(r){var w=ri(r,2,9);return{p:{m:w*w},text:"Les solutions de y″ + "+(w*w)+"y = 0 sont de la forme A cos(ωx) + B sin(ωx) avec ω > 0. Quelle est la valeur de ω ?",ans:w,tol:1e-9,
+ sol:["L'équation y″ + ω²y = 0 a pour solutions A cos(ωx) + B sin(ωx).","Ici ω² = "+(w*w)+", donc ω = "+w+"."]}});
+add("diff","d_const",function(r){var a=pick(r,[2,3,4,5]),b=pick(r,[4,6,8,10,12]),v=b/a;return{p:{a:a,b:b},text:"L'équation y′ + "+a+"y = "+b+" admet une unique solution constante. Quelle est sa valeur ? "+I3,ans:v,tol:0.0006,
+ sol:["Si y est constante, y′ = 0, donc "+a+"y = "+b+".","y = "+b+"/"+a+" = "+fr(v,3)+"."]}});
+add("diff","d_aff",function(r){var b=ri(r,1,5),c=ri(r,1,5);return{p:{b:b,c:c},text:"Soit y la solution de y′ = y + "+b+" avec y(0) = "+c+". Calculer y(ln 2).",ans:2*c+b,tol:1e-9,
+ sol:["Solution particulière constante : y = −"+b+". Solutions : y(x) = Keˣ − "+b+".","y(0) = "+c+" donne K = "+(c+b)+".","y(ln 2) = "+(c+b)+" × 2 − "+b+" = "+(2*c+b)+"."]}});
+add("diff","d_decr",function(r){var a=ri(r,1,4),c=2*ri(r,1,6);return{p:{a:a,c:c},text:"Soit y la solution de y′ = −"+cy(a)+" telle que y(0) = "+c+". Calculer y("+(a===1?"ln 2":"(ln 2)/"+a)+").",ans:c/2,tol:1e-9,
+ sol:["y(x) = "+c+"e<sup>−"+cx(a)+"</sup>.","y("+(a===1?"ln 2":"(ln 2)/"+a)+") = "+c+"·e<sup>−ln 2</sup> = "+c+"/2 = "+(c/2)+"."]}});
+
+/* --- Statistiques --- */
+function tab(y){return "x : 1, 2, 3, 4, 5 ; y : "+y.join(", ")}
+add("stat","t_mean",function(r){var x=[];for(var i=0;i<5;i++)x.push(ri(r,2,19));var s=x.reduce(function(a,b){return a+b},0);return{p:{x:x},text:"Série : "+x.join(", ")+". Calculer la moyenne. "+I2,ans:s/5,tol:0.006,
+ sol:["Somme = "+s+", effectif = 5.","Moyenne = "+s+"/5 = "+fr(s/5,2)+"."]}});
+add("stat","t_var",function(r){var x=[];for(var i=0;i<5;i++)x.push(ri(r,1,9));var s=0,q=0;x.forEach(function(v){s+=v;q+=v*v});var m=s/5,v=q/5-m*m;return{p:{x:x},text:"Série : "+x.join(", ")+". Calculer la variance (population). "+I2,ans:v,tol:0.006,
+ sol:["Moyenne m = "+s+"/5 = "+fr(m,2)+".","V = (Σx²)/5 − m² = "+q+"/5 − "+fr(m*m,3)+".","V ≈ "+fr(v,3)+"."]}});
+add("stat","t_cov",function(r){var y=[];for(var i=0;i<5;i++)y.push(ri(r,1,12));var sxy=0,sy=0;for(i=0;i<5;i++){sxy+=(i+1)*y[i];sy+=y[i]}var v=sxy/5-3*sy/5;return{p:{y:y},text:"On observe : "+tab(y)+". Calculer la covariance Cov(x, y). "+I2,ans:v,tol:0.006,
+ sol:["x̄ = 3 ; ȳ = "+sy+"/5 = "+fr(sy/5,2)+" ; Σxy = "+sxy+".","Cov = Σxy/5 − x̄·ȳ = "+fr(sxy/5,2)+" − "+fr(3*sy/5,2)+" = "+fr(v,2)+"."]}});
+add("stat","t_slope",function(r){var y=[];for(var i=0;i<5;i++)y.push(ri(r,1,12));var sxy=0,sy=0;for(i=0;i<5;i++){sxy+=(i+1)*y[i];sy+=y[i]}var cv=sxy/5-3*sy/5,v=cv/2;return{p:{y:y},text:"On observe : "+tab(y)+". Donner le coefficient directeur a de la droite de régression de y en x (on rappelle V(x) = 2). "+I2,ans:v,tol:0.006,
+ sol:["a = Cov(x, y)/V(x).","Cov = "+fr(cv,2)+" (Σxy/5 − x̄ȳ avec x̄ = 3), V(x) = 2.","a = "+fr(cv,2)+"/2 = "+fr(v,3)+"."]}});
+add("stat","t_pred",function(r){var a=pick(r,[0.5,1.5,2.5,3,4]),b=ri(r,1,9),x=ri(r,6,12);return{p:{a:a,b:b,x:x},text:"La droite de régression de y en x est y = "+fr(a,1)+"x + "+b+". Quelle valeur de y prévoit-on pour x = "+x+" ?",ans:a*x+b,tol:1e-6,
+ sol:["y = "+fr(a,1)+" × "+x+" + "+b+" = "+fr(a*x+b,2)+"."]}});
+
+/* --- Limites et primitives --- */
+add("lim","l_exp",function(r){var a=ri(r,2,9);return{p:{a:a},text:"Calculer lim<sub>x→0</sub> (e<sup>"+a+"x</sup> − 1)/x.",ans:a,tol:1e-9,
+ sol:["On pose u = "+a+"x : (eᵘ − 1)/x = "+a+" × (eᵘ − 1)/u.","Or (eᵘ − 1)/u → 1 quand u → 0.","La limite vaut "+a+"."]}});
+add("lim","l_ln",function(r){var a=ri(r,2,9);return{p:{a:a},text:"Calculer lim<sub>x→0</sub> ln(1 + "+a+"x)/x.",ans:a,tol:1e-9,
+ sol:["On pose u = "+a+"x : ln(1 + u)/x = "+a+" × ln(1 + u)/u.","Or ln(1 + u)/u → 1 quand u → 0.","La limite vaut "+a+"."]}});
+add("lim","l_sin",function(r){var a=ri(r,1,6),b=ri(r,2,5),v=a/b;return{p:{a:a,b:b},text:"Calculer lim<sub>x→0</sub> sin("+cx(a)+")/("+b+"x). "+I3,ans:v,tol:0.0006,
+ sol:["sin("+cx(a)+")/("+b+"x) = ("+a+"/"+b+") × sin("+cx(a)+")/("+cx(a)+").","Or sin(u)/u → 1 quand u → 0.","La limite vaut "+a+"/"+b+" ≈ "+fr(v,3)+"."]}});
+add("lim","l_prim",function(r){var a=ri(r,1,4),b=ri(r,1,4),v=a+b*Math.LN2;return{p:{a:a,b:b},text:"Soit F la primitive de f(x) = "+a+"eˣ + "+b+" qui s'annule en 0. Calculer F(ln 2). "+I3,ans:v,tol:0.0006,
+ sol:["F(x) = "+a+"eˣ + "+cx(b)+" + K ; F(0) = 0 donne K = −"+a+".","F(ln 2) = "+a+"×2 + "+b+" ln 2 − "+a+" = "+a+" + "+b+" ln 2.","≈ "+fr(v,4)+"."]}});
+add("lim","l_inf",function(r){var a=ri(r,2,9),b=ri(r,1,9),c=ri(r,2,5),d=ri(r,1,9),v=a/c;return{p:{a:a,b:b,c:c,d:d},text:"Calculer lim<sub>x→+∞</sub> ("+a+"eˣ + "+b+")/("+c+"eˣ + "+d+"). "+I2,ans:v,tol:0.006,
+ sol:["On factorise par eˣ : ("+a+" + "+b+"e⁻ˣ)/("+c+" + "+d+"e⁻ˣ).","e⁻ˣ → 0, donc la limite est "+a+"/"+c+" ≈ "+fr(v,3)+"."]}});
+add("lim","l_deriv",function(r){var a=ri(r,1,5),b=ri(r,1,4),v=2*b/(b*b+a);return{p:{a:a,b:b},text:"Soit f(x) = ln(x² + "+a+"). Calculer f′("+b+"). "+I3,ans:v,tol:0.0006,
+ sol:["f′(x) = 2x/(x² + "+a+").","f′("+b+") = "+(2*b)+"/"+(b*b+a)+" ≈ "+fr(v,3)+"."]}});
+
+function make(id,r){var g=G[id],q=g.gen(r);q.id=id;q.ch=g.ch;return q}
+function parse(s){s=String(s).trim().replace(/\s+/g,"").replace(/,/g,".").replace(/−/g,"-");if(!s)return NaN;
+ var m=s.match(/^(-?\d+(?:\.\d+)?)\/(-?\d+(?:\.\d+)?)$/);if(m)return parseFloat(m[1])/parseFloat(m[2]);
+ if(!/^-?\d+(\.\d+)?$/.test(s))return NaN;return parseFloat(s)}
+function ids(ch){return Object.keys(G).filter(function(i){return G[i].ch===ch})}
+function session(ch,n,r){var l=ids(ch),out=[],last=null;for(var i=0;i<n;i++){var id;do{id=pick(r,l)}while(l.length>1&&id===last);last=id;out.push(make(id,r))}return out}
+return{CH:CH,G:G,make:make,parse:parse,ids:ids,session:session,mk:mk};
+})();
+if(typeof module!=="undefined")module.exports=ENGINE;
+</script>
+
+<script id="ui">
+(function(){
+var app=document.getElementById("app");
+var store={get:function(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+var prog=store.get("bacs2")||{};
+function save(){store.set("bacs2",prog)}
+function home(){
+ var h='<p class="hint">Choisissez un chapitre : 10 questions, valeurs différentes à chaque fois. Répondez d\'abord, puis la correction détaillée s\'affiche.</p><div class="grid">';
+ ENGINE.CH.forEach(function(c){var p=prog[c.id]||{t:0,ok:0},pc=p.t?Math.round(100*p.ok/p.t):0;
+  h+='<button class="ch" data-ch="'+c.id+'"><b>'+c.ico+' '+c.nom+'</b><small>'+(p.t?p.ok+' bonnes réponses sur '+p.t+' ('+pc+' %)':'Pas encore commencé')+'</small><div class="bar"><i style="width:'+pc+'%"></i></div></button>'});
+ h+='</div>';app.innerHTML=h;
+ [].forEach.call(app.querySelectorAll(".ch"),function(b){b.onclick=function(){start(b.getAttribute("data-ch"))}});
+}
+function start(ch){
+ var qs=ENGINE.session(ch,10,Math.random),i=0,score=0,name=ENGINE.CH.filter(function(c){return c.id===ch})[0].nom;
+ function show(){
+  if(i>=qs.length){app.innerHTML='<button class="back" id="bk">← Chapitres</button><div class="card"><div class="top">'+name+'</div><div class="big">'+score+' / '+qs.length+'</div><p>'+(score>=8?"Très bien ! Relancez une série pour varier les valeurs.":score>=5?"C'est un bon début. Relisez les corrections des questions ratées et recommencez.":"Reprenez le cours de ce chapitre, puis refaites une série.")+'</p><button class="b" id="again">Nouvelle série</button></div>';
+   document.getElementById("bk").onclick=home;document.getElementById("again").onclick=function(){start(ch)};return}
+  var q=qs[i];
+  app.innerHTML='<button class="back" id="bk">← Chapitres</button><div class="card"><div class="top"><span>'+name+'</span><span>Question '+(i+1)+' / '+qs.length+'</span></div><div class="q">'+q.text+'</div><form class="ans" id="f"><input id="in" inputmode="decimal" autocomplete="off" placeholder="Votre réponse" aria-label="Votre réponse"><button class="b" type="submit">Valider</button></form><div id="out"></div></div>';
+  document.getElementById("bk").onclick=home;
+  var f=document.getElementById("f"),inp=document.getElementById("in"),out=document.getElementById("out"),done=false;
+  inp.focus();
+  f.onsubmit=function(e){e.preventDefault();if(done)return;var v=ENGINE.parse(inp.value);
+   if(isNaN(v)){out.innerHTML='<div class="res ko">Écrivez un nombre (ex. 12, 0,75 ou 3/4).</div>';return}
+   done=true;inp.disabled=true;var ok=Math.abs(v-q.ans)<=q.tol;
+   var p=prog[ch]||{t:0,ok:0};p.t++;if(ok){p.ok++;score++}prog[ch]=p;save();
+   out.innerHTML='<div class="res '+(ok?'ok':'ko')+'">'+(ok?'Bonne réponse !':'Ce n\'est pas la bonne réponse.')+'</div><div class="sol"><b>Correction</b>'+q.sol.map(function(s){return'<p>'+s+'</p>'}).join('')+'</div><p><button class="b" id="nx">'+(i+1<qs.length?'Question suivante':'Voir mon score')+'</button></p>';
+   document.getElementById("nx").onclick=function(){i++;show()};document.getElementById("nx").focus()};
+ }
+ show();
+}
+home();
+if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})})}
+})();
+</script>
+</body>
+</html>
