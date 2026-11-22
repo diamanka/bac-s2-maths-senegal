@@ -27,15 +27,15 @@ button.b{font:inherit;padding:13px 18px;border-radius:10px;border:0;background:v
 @media (prefers-color-scheme:dark){button.b{background:var(--acc);color:#111}}
 .none{padding:14px;border-left:4px solid var(--acc);background:var(--card);border-radius:6px;margin:8px 0}
 .hint{color:var(--mut);font-size:.9rem}
-footer{max-width:860px;margin:8px auto 28px;padding:0 16px;color:var(--mut);font-size:.82rem}
+p.note{background:#fff7e0;border:1px solid #f0d58a;border-radius:8px;padding:8px 10px;font-size:.85rem}footer{max-width:860px;margin:8px auto 28px;padding:0 16px;color:var(--mut);font-size:.82rem}
 </style>
 </head>
 <body>
 <header><h1>Sujets du Bac S2 – Mathématiques</h1><p>Épreuves du 1er groupe · lisez le sujet, cherchez, puis demandez la correction</p></header>
 <main id="app"></main>
-<footer>Sujets et corrigés officiels de l'Office du Baccalauréat (UCAD, Dakar), reproduits tels quels à des fins d'entraînement, d'après les annales publiées sur officedubac.sn et sigmaths.net. Les corrigés peuvent contenir des coquilles : vérifiez avec votre professeur.</footer>
+<footer>Sujets et corrigés officiels de l'Office du Baccalauréat (UCAD, Dakar), reproduits tels quels à des fins d'entraînement, d'après les annales publiées sur officedubac.sn et sigmaths.net, complétées pour 2004-2006 et 2012 par le recueil APMAF (Association des professeurs de mathématiques d'Afrique francophone), source non officielle. Les corrigés peuvent contenir des coquilles : vérifiez avec votre professeur.</footer>
 <script>
-var YEARS=[{"y":2026,"s":2,"c":0},{"y":2025,"s":2,"c":0},{"y":2024,"s":3,"c":0},{"y":2023,"s":2,"c":8},{"y":2022,"s":2,"c":19},{"y":2021,"s":2,"c":6},{"y":2020,"s":2,"c":9},{"y":2019,"s":2,"c":7},{"y":2018,"s":2,"c":6},{"y":2017,"s":0,"c":0},{"y":2016,"s":2,"c":6},{"y":2015,"s":3,"c":10},{"y":2014,"s":2,"c":10},{"y":2013,"s":2,"c":6},{"y":2012,"s":0,"c":0},{"y":2011,"s":2,"c":6},{"y":2010,"s":2,"c":13},{"y":2009,"s":2,"c":8},{"y":2008,"s":2,"c":0},{"y":2007,"s":2,"c":0}];
+var YEARS=[{"y":2026,"s":2,"c":0},{"y":2025,"s":2,"c":0},{"y":2024,"s":3,"c":0},{"y":2023,"s":2,"c":8},{"y":2022,"s":2,"c":19},{"y":2021,"s":2,"c":6},{"y":2020,"s":2,"c":9},{"y":2019,"s":2,"c":7},{"y":2018,"s":2,"c":6},{"y":2017,"s":0,"c":0},{"y":2016,"s":2,"c":6},{"y":2015,"s":3,"c":10},{"y":2014,"s":2,"c":10},{"y":2013,"s":2,"c":6},{"y":2012,"s":2,"c":0,"n":"Source : Annale APMAF 2004-2014 (recueil non officiel). Attention : le document source est dégradé, plusieurs formules et fractions ne s'affichent pas. Cherchez l'original auprès de votre professeur."},{"y":2011,"s":2,"c":6},{"y":2010,"s":2,"c":13},{"y":2009,"s":2,"c":8},{"y":2008,"s":2,"c":0},{"y":2007,"s":2,"c":0},{"y":2006,"s":2,"c":5,"n":"Source : Annale APMAF 2004-2014 (sujet reproduit du document officiel de l'Office du Baccalauréat ; corrigé non officiel)."},{"y":2005,"s":2,"c":4,"n":"Source : Annale APMAF 2004-2014 (recueil non officiel, texte retapé). Dans le tableau de l'exercice 2, la valeur « 10 » est très probablement « 100 » (coquille du recueil)."},{"y":2004,"s":2,"c":4,"n":"Source : Annale APMAF 2004-2014 (recueil non officiel, texte retapé). Vérifiez avec votre professeur."}];
 var app=document.getElementById("app");
 function imgs(y,t,n){var h='<div class="pages">';for(var i=1;i<=n;i++)h+='<img loading="lazy" alt="Épreuve '+y+(t==="s"?" – sujet":" – corrigé")+', page '+i+'" src="sujets/'+y+'/'+t+i+'.jpg">';return h+'</div>'}
 function home(){
@@ -49,7 +49,7 @@ function home(){
 }
 function show(y){
  var e=YEARS.filter(function(x){return x.y===y})[0];
- var h='<button class="back" id="bk">← Toutes les années</button><h2>Épreuve de mathématiques – Bac '+y+' (1er groupe)</h2>'+imgs(y,"s",e.s);
+ var h='<button class="back" id="bk">← Toutes les années</button><h2>Épreuve de mathématiques – Bac '+y+' (1er groupe)</h2>'+(e.n?'<p class="note">'+e.n+'</p>':'')+imgs(y,"s",e.s);
  h+='<div id="corr">'+(e.c?'<button class="b" id="go">Je veux la correction</button>':'<div class="none"><b>Pas de correction disponible pour ce sujet.</b></div>')+'</div>';
  app.innerHTML=h;document.getElementById("bk").onclick=home;window.scrollTo(0,0);
  if(e.c)document.getElementById("go").onclick=function(){document.getElementById("corr").innerHTML='<h2>Correction – Bac '+y+'</h2>'+imgs(y,"c",e.c)+'<button class="back" id="bk2">← Toutes les années</button>';document.getElementById("bk2").onclick=home;document.getElementById("corr").scrollIntoView()}
