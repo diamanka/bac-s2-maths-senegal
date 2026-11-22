@@ -1,7 +1,7 @@
 {
-  "name": "Bac S2 Maths – Entraînement",
-  "short_name": "Bac S2 Maths",
-  "description": "Entraînement par chapitre au Bac S2 (Sénégal), avec correction détaillée.",
+  "name": "Bac S2 Sénégal – Mathématiques",
+  "short_name": "Bac S2 Sénégal",
+  "description": "Annales corrigées (1997-2026) et entraînement par chapitre pour le Bac S2 de mathématiques au Sénégal.",
   "lang": "fr",
   "start_url": "./index.html",
   "scope": "./",

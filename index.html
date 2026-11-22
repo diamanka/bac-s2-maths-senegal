@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Bac S2 Maths – Entraînement</title>
+<title>Bac S2 Sénégal – Mathématiques</title>
 <meta name="theme-color" content="#1b3a6b">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/png" href="icon-192.png">
@@ -54,7 +54,7 @@ footer{max-width:760px;margin:8px auto 28px;padding:0 16px;color:var(--mut);font
 </style>
 </head>
 <body>
-<header><h1>Bac S2 – Mathématiques</h1><p>Annales du bac et entraînement par chapitre</p></header>
+<header><h1>Bac S2 Sénégal – Mathématiques</h1><p>Baccalauréat du Sénégal · annales et entraînement par chapitre</p></header>
 <main id="app"></main>
 <footer>Questions originales, inspirées des types d'exercices des épreuves du Bac sénégalais (Office du Baccalauréat, UCAD). Elles ne reprennent pas les énoncés officiels. Ce programme ne remplace pas les sujets complets : travaillez aussi les annales.<div class="by">Créé par Ousmane Diamanka, ingénieur en data science et automatisation robotique</div></footer>
 
@@ -213,7 +213,7 @@ var tab=store.get("bacs2tab")||"ann";
 function home(){
  var h='<div class="tabs"><button class="tab t-ann'+(tab==="ann"?' on':'')+'" data-t="ann">📄 Annales du bac</button><button class="tab t-ent'+(tab==="ent"?' on':'')+'" data-t="ent">✏️ Entraînement par chapitre</button></div>';
  if(tab==="ann"){
-  h+='<a class="ch ann" href="sujets.html"><b>📄 Annales du bac</b><small>Les épreuves de mathématiques de 1997 à 2026 avec leurs corrections. Lisez le sujet, cherchez, puis demandez la correction.</small></a>';
+  h+='<a class="ch ann" href="sujets.html"><b>📄 Annales du bac</b><small>Les épreuves de mathématiques du baccalauréat du Sénégal, de 1997 à 2026 avec leurs corrections. Lisez le sujet, cherchez, puis demandez la correction.</small></a>';
  }else{
   h+='<p class="hint">Choisissez un chapitre : 10 questions, valeurs différentes à chaque fois. Répondez d\'abord, puis la correction détaillée s\'affiche.</p><div class="grid">';
   ENGINE.CH.forEach(function(c){var p=prog[c.id]||{t:0,ok:0},pc=p.t?Math.round(100*p.ok/p.t):0;
