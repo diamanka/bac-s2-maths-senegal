@@ -201,11 +201,11 @@ var store={get:function(k){try{return JSON.parse(localStorage.getItem(k))}catch(
 var prog=store.get("bacs2")||{};
 function save(){store.set("bacs2",prog)}
 function home(){
- var h='<p class="hint">Choisissez un chapitre : 10 questions, valeurs différentes à chaque fois. Répondez d\'abord, puis la correction détaillée s\'affiche.</p><div class="grid">';
+ var h='<a class="ch" href="sujets.html" style="display:block;text-decoration:none;margin-bottom:12px;border-color:var(--acc)"><b>📄 Sujets du bac (1er groupe)</b><small>Les épreuves officielles de 2007 à 2026, avec leurs corrections</small></a><p class="hint">Choisissez un chapitre : 10 questions, valeurs différentes à chaque fois. Répondez d\'abord, puis la correction détaillée s\'affiche.</p><div class="grid">';
  ENGINE.CH.forEach(function(c){var p=prog[c.id]||{t:0,ok:0},pc=p.t?Math.round(100*p.ok/p.t):0;
   h+='<button class="ch" data-ch="'+c.id+'"><b>'+c.ico+' '+c.nom+'</b><small>'+(p.t?p.ok+' bonnes réponses sur '+p.t+' ('+pc+' %)':'Pas encore commencé')+'</small><div class="bar"><i style="width:'+pc+'%"></i></div></button>'});
  h+='</div>';app.innerHTML=h;
- [].forEach.call(app.querySelectorAll(".ch"),function(b){b.onclick=function(){start(b.getAttribute("data-ch"))}});
+ [].forEach.call(app.querySelectorAll(".ch[data-ch]"),function(b){b.onclick=function(){start(b.getAttribute("data-ch"))}});
 }
 function start(ch){
  var qs=ENGINE.session(ch,10,Math.random),i=0,score=0,name=ENGINE.CH.filter(function(c){return c.id===ch})[0].nom;
