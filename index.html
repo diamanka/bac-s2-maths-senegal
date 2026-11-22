@@ -42,12 +42,21 @@ button.g{background:transparent;color:var(--pri);border:1px solid var(--line)}
 .back{margin:0 0 4px;background:none;border:0;color:var(--pri);font:inherit;cursor:pointer;padding:6px 0}
 footer{max-width:760px;margin:8px auto 28px;padding:0 16px;color:var(--mut);font-size:.82rem}
 .big{font-size:2rem;font-weight:700;margin:6px 0}
+.tabs{display:flex;gap:8px;margin:0 0 14px}
+.tab{flex:1;padding:12px 8px;border:2px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);font:inherit;font-weight:600;cursor:pointer}
+.tab.t-ann.on{background:#1a7f4b;border-color:#1a7f4b;color:#fff}
+.tab.t-ent.on{background:#1b5fc4;border-color:#1b5fc4;color:#fff}
+.tab.t-ann{border-color:#1a7f4b}.tab.t-ent{border-color:#1b5fc4}
+.ann{display:block;text-decoration:none;border-left:6px solid #1a7f4b;padding:18px}
+.ann b{font-size:1.15rem}
+.grid .ch{border-top:4px solid #1b5fc4}
+.by{margin-top:12px;font-weight:600;color:var(--ink)}
 </style>
 </head>
 <body>
-<header><h1>Bac S2 – Mathématiques</h1><p>Entraînement par chapitre · tentez d'abord, la correction vient ensuite</p></header>
+<header><h1>Bac S2 – Mathématiques</h1><p>Annales du bac et entraînement par chapitre</p></header>
 <main id="app"></main>
-<footer>Questions originales, inspirées des types d'exercices des épreuves du Bac sénégalais (Office du Baccalauréat, UCAD). Elles ne reprennent pas les énoncés officiels. Ce programme ne remplace pas les sujets complets : travaillez aussi les annales.</footer>
+<footer>Questions originales, inspirées des types d'exercices des épreuves du Bac sénégalais (Office du Baccalauréat, UCAD). Elles ne reprennent pas les énoncés officiels. Ce programme ne remplace pas les sujets complets : travaillez aussi les annales.<div class="by">Créé par Ousmane Diamanka, ingénieur en data science et automatisation robotique</div></footer>
 
 <script id="engine">
 /* ===== Moteur de questions ===== */
@@ -200,11 +209,19 @@ var app=document.getElementById("app");
 var store={get:function(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 var prog=store.get("bacs2")||{};
 function save(){store.set("bacs2",prog)}
+var tab=store.get("bacs2tab")||"ann";
 function home(){
- var h='<a class="ch" href="sujets.html" style="display:block;text-decoration:none;margin-bottom:12px;border-color:var(--acc)"><b>📄 Sujets du bac (1er groupe)</b><small>Les épreuves officielles de 2007 à 2026, avec leurs corrections</small></a><p class="hint">Choisissez un chapitre : 10 questions, valeurs différentes à chaque fois. Répondez d\'abord, puis la correction détaillée s\'affiche.</p><div class="grid">';
- ENGINE.CH.forEach(function(c){var p=prog[c.id]||{t:0,ok:0},pc=p.t?Math.round(100*p.ok/p.t):0;
-  h+='<button class="ch" data-ch="'+c.id+'"><b>'+c.ico+' '+c.nom+'</b><small>'+(p.t?p.ok+' bonnes réponses sur '+p.t+' ('+pc+' %)':'Pas encore commencé')+'</small><div class="bar"><i style="width:'+pc+'%"></i></div></button>'});
- h+='</div>';app.innerHTML=h;
+ var h='<div class="tabs"><button class="tab t-ann'+(tab==="ann"?' on':'')+'" data-t="ann">📄 Annales du bac</button><button class="tab t-ent'+(tab==="ent"?' on':'')+'" data-t="ent">✏️ Entraînement par chapitre</button></div>';
+ if(tab==="ann"){
+  h+='<a class="ch ann" href="sujets.html"><b>📄 Annales du bac</b><small>Les épreuves de mathématiques de 1997 à 2026 avec leurs corrections. Lisez le sujet, cherchez, puis demandez la correction.</small></a>';
+ }else{
+  h+='<p class="hint">Choisissez un chapitre : 10 questions, valeurs différentes à chaque fois. Répondez d\'abord, puis la correction détaillée s\'affiche.</p><div class="grid">';
+  ENGINE.CH.forEach(function(c){var p=prog[c.id]||{t:0,ok:0},pc=p.t?Math.round(100*p.ok/p.t):0;
+   h+='<button class="ch" data-ch="'+c.id+'"><b>'+c.ico+' '+c.nom+'</b><small>'+(p.t?p.ok+' bonnes réponses sur '+p.t+' ('+pc+' %)':'Pas encore commencé')+'</small><div class="bar"><i style="width:'+pc+'%"></i></div></button>'});
+  h+='</div>';
+ }
+ app.innerHTML=h;
+ [].forEach.call(app.querySelectorAll(".tab"),function(b){b.onclick=function(){tab=b.getAttribute("data-t");store.set("bacs2tab",tab);home()}});
  [].forEach.call(app.querySelectorAll(".ch[data-ch]"),function(b){b.onclick=function(){start(b.getAttribute("data-ch"))}});
 }
 function start(ch){
